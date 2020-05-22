@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <style>
+    .w3-tangerine {
+      font-family: "Tangerine", serif;
+    }
+
+    #customers {
+      font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+      border-collapse: collapse;
+      width: 100%;
+    }
+
+    #customers td,
+    #customers th {
+      border: 1px solid #ddd;
+      padding: 8px;
+    }
+
+    #customers tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+
+    #customers tr:hover {
+      background-color: #ddd;
+    }
+
+    #customers th {
+      padding-top: 12px;
+      padding-bottom: 12px;
+      text-align: left;
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    .button {
+      background-color: #4CAF50;
+      /* Green */
+      border: none;
+      color: white;
+      padding: 15px 32px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: 4px 2px;
+      cursor: pointer;
+    }
+
+    h2 {
+      text-align: center;
+
+      color: rgb(7, 139, 11);
+    }
+  </style>
+</head>
+
+<body>
+  <h2 style="text-align:center">Reward Program</h2>
+  <table id="customers">
+    <tr>
+      <th>Date</th>
+      <th>Amount</th>
+      <th>Name</th>
+    </tr>
+  </table>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Tangerine">
+  <script>
+    $(document).ready(function () {
+      var json = [
+        { Dates: "2/6/2020", TransactionAmount: 200, CustNo: "Paul" },
+        { Dates: "2/7/2020", TransactionAmount: 140, CustNo: "Ally" },
+        { Dates: "3/26/2020", TransactionAmount: 240, CustNo: "Paul" },
+        { Dates: "2/10/2020", TransactionAmount: 220, CustNo: "Steve" },
+        { Dates: "4/27/2020", TransactionAmount: 200, CustNo: "Paul" },
+        { Dates: "2/6/2020", TransactionAmount: 180, CustNo: "Steve" },
+        { Dates: "3/9/2020", TransactionAmount: 140, CustNo: "Ally" },
+        { Dates: "3/17/2020", TransactionAmount: 250, CustNo: "Steve"},
+        { Dates: "4/22/2020", TransactionAmount: 180, CustNo: "Paul" },
+        { Dates: "4/8/2020", TransactionAmount: 150, CustNo: "Steve" },
+        { Dates: "3/14/2020", TransactionAmount: 200, CustNo: "Paul" },
+        { Dates: "4/18/2020", TransactionAmount: 380, CustNo: "Ally" },
+      ];
+      var tr;
+      for (var i = 0; i < json.length; i++) {
+        tr = $("<tr/>");
+        tr.append("<td>" + json[i].Dates + "</td>");
+        tr.append("<td>" + json[i].TransactionAmount + "</td>");
+        tr.append("<td>" + json[i].CustNo + "</td>");
+        $("table").append(tr);
+      }
+
+      let group = json.reduce((r, a) => {
+        r[a.CustNo] = [...(r[a.CustNo] || []), a];
+        return r;
+      }, {});
+      // console.log(group);
+      let reward;
+      let customerName;
+      let transactionMonth;
+      let result = "";
+      for (let x of Object.keys(group)) {
+        let result = [];
+        let add = '';
+        let obj = '';
+        group[x].forEach((transactions) => {
+          reward = 0;
+          transactionMonth = getMonth(transactions.Dates);
+          reward = calculateReward(transactions.TransactionAmount);
+          customerName = transactions.CustNo;
+
+          let ValueExist = result.filter(function (o) {
+            return o.month === (transactionMonth);
+          })
+          if (ValueExist.length === 0) {
+            obj = { month: transactionMonth, reward: reward };
+            result.push(obj);
+          }
+          else {
+            let existingmonth = ValueExist[0].month;
+            result.map(element => {
+              if (element.month === transactionMonth)
+                element.reward += reward;
+            })
+          }
+        });
+        console.log(customerName);
+        console.log(result);
+        displayResult('Result for the Customer ' + customerName);
+        let totalrewardperperson = 0;
+        result.forEach(element => {
+          // console.log(element);
+          totalrewardperperson += element.reward;
+          displayResult('For Month  ' + element.month + '  Reward  = ' + element.reward);
+        });
+        displayResult('Total Reward Points Earned = ' + totalrewardperperson + '<br />');
+      }
+
+
+      function calculateReward(transactionAmount) {
+        let rewardValue =
+          transactionAmount <= 50
+            ? 0
+            : transactionAmount > 50 && transactionAmount <= 100
+              ? (transactionAmount - 50) * 1
+              : (transactionAmount - 50) * 1 + (transactionAmount - 100);
+        return rewardValue;
+      }
+      function getMonth(str) {
+        var d = new Date(str); //converts the string into date object
+        var m = d.getMonth() + 1; //get the value of month
+        return m;
+      }
+    });
+
+    // display result
+    var message = "";
+    function displayResult(result) {
+      // console.log(result)
+      message = message + "\n" + result + '<br />';
+      document.getElementById("myHeader").innerHTML = message;
+    }
+
+    function showDiv() {
+      div = document.getElementById('tow');
+      div.style.display = "block";
+    }
+  </script>
+
+  <button class="button" onclick="javascript:showDiv();">Calculate Reward</button>
+
+  <div id="tow" style="display: none">
+    <h2 class="w3-xxlarge" id="myHeader" style="text-align:center"></h2>
+  </div>
+
+
+
+
+</body>
+
+</html>
